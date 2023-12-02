@@ -173,7 +173,6 @@ wheel = "^0.37.1"
 freezegun = "^1.2.2"
 line-profiler = "^4.1.1"
 pytest-repeat = "^0.9.3"
-modal = "^0.55.4165"
 
 [tool.poetry.scripts]
 lilac = "lilac.cli:cli"
