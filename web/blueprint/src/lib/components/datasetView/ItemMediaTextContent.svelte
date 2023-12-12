@@ -212,8 +212,8 @@
           isTrusted: true
         },
         {
-          value: `<span>${renderSpan.text}</span>`,
-          supportHtml: true,
+          value: renderSpan.text,
+          supportHtml: false,
           isTrusted: false
         }
       ];
@@ -233,9 +233,9 @@
           isTrusted: true
         },
         {
-          value: `<span>${renderSpan.text}</span>`,
+          value: renderSpan.text,
           supportHtml: false,
-          isTrusted: true
+          isTrusted: false
         }
       ];
     } else if (renderSpan.isKeywordSearch) {
@@ -248,9 +248,9 @@
           isTrusted: true
         },
         {
-          value: `<span>${renderSpan.text}</span>`,
+          value: renderSpan.text,
           supportHtml: false,
-          isTrusted: true
+          isTrusted: false
         }
       ];
     } else if (renderSpan.isLeafSpan) {
@@ -264,15 +264,15 @@
           ? [
               {
                 value: `value: *${namedValue.value}*`,
-                supportHtml: true,
-                isTrusted: true
+                supportHtml: false,
+                isTrusted: false
               }
             ]
           : []),
         {
-          value: `<span>${renderSpan.text}</span>`,
-          supportHtml: true,
-          isTrusted: true
+          value: renderSpan.text,
+          supportHtml: false,
+          isTrusted: false
         }
       ];
     }
