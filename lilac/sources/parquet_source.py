@@ -145,7 +145,7 @@ class ParquetSource(Source):
 
     # Ensure that self.sample_size reflects the actual number of rows processed.
     processed_count = self._con.execute(
-      f"SELECT COUNT(*) FROM read_parquet('{filepath}')"
+      f'SELECT COUNT(*) FROM read_parquet({filepath!r})'
     ).fetchone()
     num_items = cast(tuple[int], processed_count)[0]
     if self.sample_size:
