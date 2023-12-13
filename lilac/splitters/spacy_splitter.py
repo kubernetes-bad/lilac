@@ -33,9 +33,9 @@ def embed_tokenizer_BoW(texts: list[str]) -> np.ndarray:
 
 @functools.cache
 def get_spacy() -> 'spacy.Language':
+  """Lazily instantiate and return a singeton SpaCy sentencizer object."""
   import spacy
 
-  """Lazily instantiate and return a singeton SpaCy sentencizer object."""
   sentencizer = spacy.blank('en')
   # This includes colon as a sentence boundary; LLM datasets tend to contain a lot of semantic
   # markers with a colon, like "Teacher: ... " or "Answer the following question: ..."
