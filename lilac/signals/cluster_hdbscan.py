@@ -2,7 +2,6 @@
 from typing import ClassVar, Iterable, Optional
 
 import numpy as np
-import umap
 from pydantic import Field as PyField
 from sklearn.cluster import HDBSCAN
 from typing_extensions import override
@@ -66,6 +65,9 @@ class ClusterHDBScan(VectorSignal):
   def _cluster_span_vectors(
     self, span_vectors: Iterable[list[SpanVector]]
   ) -> Iterable[Optional[Item]]:
+    # umap is expensive to import due to numba compilation; lazy import when needed.
+    import umap
+
     all_spans: list[list[tuple[int, int]]] = []
     all_vectors: list[np.ndarray] = []
     with DebugTimer('DBSCAN: Reading from vector store'):

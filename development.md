@@ -309,8 +309,14 @@ responsible for memory usage/leakage.
 This short snippet will run a test script `test_script.py` and open the profiler results.
 
 ```bash
-rm memray.bin memray-flamegraph-memray.html &&
+rm memray.bin memray-flamegraph-memray.html; \
   poetry run memray run -o memray.bin test_script.py &&
   poetry run memray flamegraph memray.bin &&
   open memray-flamegraph-memray.html
+```
+
+#### Profiling import time
+
+```bash
+poetry run python -X importtime -c "import lilac" 2> import.log && poetry run tuna import.log
 ```

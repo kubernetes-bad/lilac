@@ -4,7 +4,6 @@ from typing import ClassVar, Iterable, Optional
 
 import numpy as np
 from pydantic import Field as PydanticField
-from scipy.interpolate import interp1d
 from typing_extensions import override
 
 from ..batch_utils import flat_batched_compute
@@ -55,7 +54,6 @@ class SemanticSimilaritySignal(VectorSignal):
 
   # Dot products are in the range [-1, 1]. We want to map this to [0, 1] for the similarity score
   # with a slight bias towards 1 since dot product of <0.2 is not really relevant.
-  _interpolate_fn = interp1d([-1, 0.2, 1], [0, 0.5, 1])
   _search_text_embedding: Optional[np.ndarray] = None
 
   @override

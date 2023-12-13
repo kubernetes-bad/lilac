@@ -13,7 +13,6 @@ from itertools import tee
 from typing import Iterable, List
 
 import numpy as np
-from scipy.integrate import quad as integrate
 from tqdm import tqdm
 
 SEED = 42
@@ -101,6 +100,7 @@ def _optimal_param(
     The optimal `b` and `r` parameters.
     The number of bands, and the number of rows per band respectively.
   """
+  from scipy.integrate import quad as integrate
 
   def false_positive_probability(threshold: float, b: int, r: int) -> float:
     """Source: `datasketch.lsh`."""

@@ -176,6 +176,7 @@ freezegun = "^1.2.2"
 line-profiler = "^4.1.1"
 pytest-repeat = "^0.9.3"
 memray = "^1.10.0"
+tuna = "^0.5.11"
 
 
 [tool.poetry.scripts]

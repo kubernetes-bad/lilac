@@ -6,7 +6,6 @@ from typing import Callable, Optional, Union
 import numpy as np
 from joblib import Parallel, delayed
 from pydantic import BaseModel, field_validator
-from scipy.interpolate import interp1d
 from sklearn.base import clone
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_curve, roc_auc_score
@@ -158,8 +157,8 @@ class LogisticEmbeddingModel:
     """Get the scores for the provided embeddings."""
     y_probs = self._model.predict_proba(embeddings)[:, 1]
     # Map [0, threshold, 1] to [0, 0.5, 1].
-    interpolate_fn = interp1d([0, self._threshold, 1], [0, 0.4999, 1])
-    return interpolate_fn(y_probs)
+    power = np.log(self._threshold) / np.log(0.5)
+    return y_probs**power
 
   def _setup_training(
     self, X_train: np.ndarray, labels: Union[list[bool], np.ndarray]

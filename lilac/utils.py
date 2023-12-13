@@ -14,15 +14,17 @@ from asyncio import AbstractEventLoop
 from concurrent.futures import Executor, ThreadPoolExecutor
 from datetime import timedelta
 from functools import partial, wraps
-from typing import IO, Any, Awaitable, Callable, Iterable, Optional, TypeVar, Union
+from typing import IO, TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional, TypeVar, Union
 
 import numpy as np
 import requests
 import yaml
-from google.cloud.storage import Blob, Client
 from pydantic import BaseModel
 
 from .env import env, get_project_dir
+
+if TYPE_CHECKING:
+  from google.cloud.storage import Blob, Client
 
 GCS_PROTOCOL = 'gs://'
 GCS_REGEX = re.compile(f'{GCS_PROTOCOL}(.*?)/(.*)')
@@ -32,7 +34,9 @@ DATASETS_DIR_NAME = 'datasets'
 
 
 @functools.cache
-def _get_storage_client(thread_id: Optional[int] = None) -> Client:
+def _get_storage_client(thread_id: Optional[int] = None) -> 'Client':
+  from google.cloud.storage import Client
+
   # The storage client is not thread safe so we use a thread_id to make sure each thread gets a
   # separate storage client.
   del thread_id
@@ -47,7 +51,7 @@ def _parse_gcs_path(filepath: str) -> tuple[str, str]:
   raise ValueError(f'Failed to parse GCS path: {filepath}')
 
 
-def _get_gcs_blob(filepath: str) -> Blob:
+def _get_gcs_blob(filepath: str) -> 'Blob':
   bucket_name, object_name = _parse_gcs_path(filepath)
   storage_client = _get_storage_client(threading.get_ident())
   bucket = storage_client.bucket(bucket_name)

@@ -1,13 +1,15 @@
 """SpaCy-based chunk splitting algorithms."""
 import bisect
 import functools
-from typing import Optional, Sequence
+from typing import TYPE_CHECKING, Optional, Sequence
 
 import numpy as np
-import spacy
 import tiktoken
 
 from .chunk_splitter import TextChunk
+
+if TYPE_CHECKING:
+  import spacy
 
 # Vector size to use for chunk comparisons.
 BOW_VECTOR_SIZE = 128
@@ -30,7 +32,9 @@ def embed_tokenizer_BoW(texts: list[str]) -> np.ndarray:
 
 
 @functools.cache
-def get_spacy() -> spacy.Language:
+def get_spacy() -> 'spacy.Language':
+  import spacy
+
   """Lazily instantiate and return a singeton SpaCy sentencizer object."""
   sentencizer = spacy.blank('en')
   # This includes colon as a sentence boundary; LLM datasets tend to contain a lot of semantic
