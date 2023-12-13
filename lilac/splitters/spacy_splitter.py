@@ -34,6 +34,7 @@ def embed_tokenizer_BoW(texts: list[str]) -> np.ndarray:
 @functools.cache
 def get_spacy() -> 'spacy.Language':
   """Lazily instantiate and return a singeton SpaCy sentencizer object."""
+  # Lazy import; spacy is a heavy dependency.
   import spacy
 
   sentencizer = spacy.blank('en')
