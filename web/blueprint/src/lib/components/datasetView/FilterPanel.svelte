@@ -5,9 +5,15 @@
   import {getDatasetViewContext} from '$lib/stores/datasetViewStore';
   import {conceptLink} from '$lib/utils';
   import {getSearches} from '$lib/view_utils';
-  import type {Search, SearchType} from '$lilac';
+  import {
+    CLUSTER_CATEGORY_FIELD,
+    CLUSTER_TITLE_FIELD,
+    getField,
+    type Search,
+    type SearchType
+  } from '$lilac';
   import {Button, Modal, SkeletonText} from 'carbon-components-svelte';
-  import {ArrowUpRight, Filter, TagGroup, TagNone, TrashCan} from 'carbon-icons-svelte';
+  import {ArrowLeft, ArrowUpRight, Filter, TagGroup, TagNone, TrashCan} from 'carbon-icons-svelte';
   import {Command, triggerCommand} from '../commands/Commands.svelte';
   import RemovableTag from '../common/RemovableTag.svelte';
   import ConceptView from '../concepts/ConceptView.svelte';
@@ -63,11 +69,31 @@
       openedConcept = {namespace: search.concept_namespace, name: search.concept_name};
     }
   }
+
+  $: groupByField =
+    $schema.data && $datasetViewStore.groupBy?.path
+      ? getField($schema.data, $datasetViewStore.groupBy?.path)
+      : null;
+  $: isGroupingByCluster = groupByField?.parent?.cluster != null;
 </script>
 
 <div class="relative mx-5 my-2 flex items-center justify-between">
   <div class="flex w-full justify-between gap-x-6 gap-y-2">
     <div class="flex w-full flex-row gap-x-4">
+      {#if isGroupingByCluster && groupByField?.parent?.path != null}
+        <div>
+          <button
+            class="inline-flex w-32 gap-x-3 border border-gray-300"
+            on:click={() => {
+              datasetViewStore.openPivotViewer(
+                [...(groupByField?.parent?.path || []), CLUSTER_CATEGORY_FIELD],
+                [...(groupByField?.parent?.path || []), CLUSTER_TITLE_FIELD]
+              );
+            }}
+            ><ArrowLeft />See clusters
+          </button>
+        </div>
+      {/if}
       <div class="flex items-center gap-x-2">
         <EditLabel
           totalNumRows={numRowsInQuery}
