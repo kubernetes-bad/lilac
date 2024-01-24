@@ -345,6 +345,22 @@ datasets:
           - original-response
 
   - namespace: lilac
+    name: mosaic-instruct-v3
+    source:
+      dataset_name: mosaicml/instruct-v3
+      source_name: huggingface
+    settings:
+      tags: [datasets]
+      ui:
+        media_paths:
+          - prompt
+          - response
+    embeddings:
+      - embedding: gte-small
+        path:
+          - prompt
+
+  - namespace: lilac
     name: dolphin
     source:
       dataset_name: cognitivecomputations/dolphin
@@ -395,7 +411,7 @@ clusters:
   - dataset_namespace: lilac
     dataset_name: lmsys-chat-1m
     input_selector:
-      format: openai_json
+      format: openai_messages_json
       selector: user
     output_path:
       - conversation__clusters
@@ -419,9 +435,20 @@ clusters:
       - original-instruction
 
   - dataset_namespace: lilac
+    dataset_name: mosaic-instruct-v3
+    input_path:
+      - prompt
+
+  - dataset_namespace: lilac
     dataset_name: dolphin
     input_path:
       - input
+
+  - dataset_namespace: lilac
+    dataset_name: UltraChat-200k
+    input_selector:
+      format: openai_messages_json
+      selector: user
 
   ## Eval datasets
   - dataset_namespace: lilac
