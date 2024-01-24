@@ -237,7 +237,7 @@
           <div class="flex w-full flex-row">
             <div class="mb-4 flex w-48 flex-col items-center justify-between gap-y-4 p-6">
               <div
-                class="mx-2 h-16 whitespace-break-spaces py-0.5 text-center text-2xl leading-7 tracking-tight"
+                class="card-category-title mx-2 h-16 whitespace-break-spaces py-0.5 text-center text-2xl leading-7 tracking-tight"
               >
                 {#each group.textHighlights as highlight}
                   {#if highlight.isBold}<span class="font-bold">{highlight.text}</span>
@@ -275,3 +275,14 @@
     {/if}
   </div>
 </div>
+
+<style lang="postcss">
+  .card-category-title {
+    width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    background: #fff;
+  }
+</style>
