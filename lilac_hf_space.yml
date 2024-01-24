@@ -148,12 +148,13 @@ datasets:
             - '*'
             - content
 
-  - namespace: local
+  - namespace: lilac
     name: roblox_luau_corpus
     source:
       dataset_name: Roblox/luau_corpus
       source_name: huggingface
     settings:
+      tags: [datasets]
       ui:
         media_paths:
           - prompt
