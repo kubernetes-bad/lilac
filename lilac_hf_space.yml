@@ -135,6 +135,19 @@ datasets:
             - '*'
             - value
 
+  - namespace: lilac
+    name: UltraChat-200k
+    source:
+      dataset_name: HuggingFaceH4/ultrachat_200k
+      source_name: huggingface
+    settings:
+      tags: [datasets]
+      ui:
+        media_paths:
+          - - messages
+            - '*'
+            - content
+
   ## Eval datasets
   - namespace: lilac
     name: MMLU

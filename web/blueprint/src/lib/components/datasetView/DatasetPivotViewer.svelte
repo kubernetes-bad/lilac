@@ -1,35 +1,35 @@
 <script lang="ts">
   import {
-      DATASETS_TAG,
-      queryDatasetSchema,
-      querySelectRows,
-      querySelectRowsSchema
+    DATASETS_TAG,
+    queryDatasetSchema,
+    querySelectRows,
+    querySelectRowsSchema
   } from '$lib/queries/datasetQueries';
-  import { createApiQuery } from '$lib/queries/queryUtils';
+  import {createApiQuery} from '$lib/queries/queryUtils';
   import {
-      getDatasetViewContext,
-      getSelectRowsOptions,
-      getSelectRowsSchemaOptions
+    getDatasetViewContext,
+    getSelectRowsOptions,
+    getSelectRowsSchemaOptions
   } from '$lib/stores/datasetViewStore';
-  import { datasetLink } from '$lib/utils';
-  import { getDisplayPath, getSearchHighlighting } from '$lib/view_utils';
+  import {datasetLink} from '$lib/utils';
+  import {getDisplayPath, getSearchHighlighting} from '$lib/view_utils';
   import {
-      DatasetsService,
-      ROWID,
-      childFields,
-      deserializePath,
-      isSignalField,
-      serializePath,
-      type Path,
-      type PivotResult
+    DatasetsService,
+    ROWID,
+    childFields,
+    deserializePath,
+    isSignalField,
+    serializePath,
+    type Path,
+    type PivotResult
   } from '$lilac';
-  import { Search, SkeletonText } from 'carbon-components-svelte';
+  import {Search, SkeletonText} from 'carbon-components-svelte';
   import type {
-      DropdownItem,
-      DropdownItemId
+    DropdownItem,
+    DropdownItemId
   } from 'carbon-components-svelte/types/Dropdown/Dropdown.svelte';
   import DropdownPill from '../common/DropdownPill.svelte';
-  import DatasetPivotResult, { type OuterPivot } from './DatasetPivotResult.svelte';
+  import DatasetPivotResult, {type OuterPivot} from './DatasetPivotResult.svelte';
 
   let outerLeafPath: Path | undefined = undefined;
   let innerLeafPath: Path | undefined = undefined;
