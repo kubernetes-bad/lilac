@@ -943,7 +943,8 @@ class DatasetDuckDB(Dataset):
           {f'columns={duckdb_schema(schema)},' if schema else ''}
           hive_partitioning=false,
           ignore_errors=true,
-          format='newline_delimited'
+          format='newline_delimited',
+          sample_size=-1
         )
       """
 
