@@ -148,6 +148,17 @@ datasets:
             - '*'
             - content
 
+  - namespace: local
+    name: roblox_luau_corpus
+    source:
+      dataset_name: Roblox/luau_corpus
+      source_name: huggingface
+    settings:
+      ui:
+        media_paths:
+          - prompt
+          - completion
+
   ## Eval datasets
   - namespace: lilac
     name: MMLU
@@ -411,7 +422,7 @@ clusters:
   - dataset_namespace: lilac
     dataset_name: lmsys-chat-1m
     input_selector:
-      format: openai_messages_json
+      format: openai_conversation_json
       selector: user
     output_path:
       - conversation__clusters
@@ -447,8 +458,21 @@ clusters:
   - dataset_namespace: lilac
     dataset_name: UltraChat-200k
     input_selector:
-      format: openai_messages_json
+      format: openai_json
       selector: user
+    output_path:
+      - messages__clusters
+
+  # NOTE: We cluster both prompt and completion because the roblox prompts are just small sections
+  # of code which are not extremely descriptive.
+  - dataset_namespace: lilac
+    dataset_name: roblox_luau_corpus
+    input_path:
+      - prompt
+  - dataset_namespace: lilac
+    dataset_name: roblox_luau_corpus
+    input_path:
+      - completion
 
   ## Eval datasets
   - dataset_namespace: lilac

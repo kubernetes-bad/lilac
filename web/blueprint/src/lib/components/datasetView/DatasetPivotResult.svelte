@@ -102,7 +102,7 @@
           <div class="flex flex-row gap-x-2 font-light leading-none text-neutral-600">
             <div class="leading-2 text-lg">
               <div class="flex flex-col py-2">
-                <div class="leading-2 flex flex-row gap-x-1 text-xl text-neutral-800">
+                <div class="leading-2 flex flex-row items-center gap-x-1 text-xl text-neutral-800">
                   {groupPercentage}%
                   <div
                     use:hoverTooltip={{
@@ -119,7 +119,9 @@
               </div>
             </div>
           </div>
-          <a class="flex flex-row" href={groupLink}> <button>Explore</button></a>
+          <a class="flex flex-row" href={groupLink}>
+            <button class="border border-neutral-300">Explore</button></a
+          >
         </div>
       </div>
     </Carousel>

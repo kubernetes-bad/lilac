@@ -235,8 +235,10 @@
           })}
 
           <div class="flex w-full flex-row">
-            <div class="flex w-48 flex-col items-center justify-center gap-y-4 py-1">
-              <div class="mx-2 whitespace-break-spaces text-center text-2xl">
+            <div class="mb-4 flex w-48 flex-col items-center justify-between gap-y-4 p-6">
+              <div
+                class="mx-2 h-16 whitespace-break-spaces py-0.5 text-center text-2xl leading-7 tracking-tight"
+              >
                 {#each group.textHighlights as highlight}
                   {#if highlight.isBold}<span class="font-bold">{highlight.text}</span>
                   {:else}<span>{highlight.text}</span>{/if}
@@ -250,7 +252,9 @@
                   {group.count.toLocaleString()} rows
                 </span>
               </div>
-              <a class="flex flex-row" href={groupLink}> <button>Explore</button></a>
+              <a class="flex flex-row" href={groupLink}>
+                <button class="border border-neutral-300">Explore</button></a
+              >
             </div>
 
             {#if outerLeafPath && innerLeafPath && numRowsInQuery}
