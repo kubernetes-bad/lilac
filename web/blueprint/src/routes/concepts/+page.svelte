@@ -4,11 +4,11 @@
   import {hoverTooltip} from '$lib/components/common/HoverTooltip';
   import ConceptSettingsModal from '$lib/components/concepts/ConceptSettingsModal.svelte';
   import ConceptView from '$lib/components/concepts/ConceptView.svelte';
-  import {deleteConceptMutation, queryConcept, queryConcepts} from '$lib/queries/conceptQueries';
+  import {queryConcept, queryConcepts} from '$lib/queries/conceptQueries';
   import {getUrlHashContext} from '$lib/stores/urlHashStore';
-  import {conceptIdentifier, conceptLink, homeLink} from '$lib/utils';
-  import {Modal, SkeletonText, Tag} from 'carbon-components-svelte';
-  import {InProgress, Settings, Share} from 'carbon-icons-svelte';
+  import {conceptIdentifier, conceptLink} from '$lib/utils';
+  import {SkeletonText, Tag} from 'carbon-components-svelte';
+  import {Settings, Share} from 'carbon-icons-svelte';
   import {fade} from 'svelte/transition';
 
   let namespace: string;
@@ -26,27 +26,11 @@
     }
   }
 
-  let deleteConceptInfo: {namespace: string; name: string} | null = null;
-
   const concepts = queryConcepts();
-  const deleteConcept = deleteConceptMutation();
 
   $: concept = namespace && conceptName ? queryConcept(namespace, conceptName) : undefined;
   $: conceptInfo = $concepts.data?.find(c => c.namespace === namespace && c.name === conceptName);
   $: canEditConcept = conceptInfo?.acls.write;
-
-  function deleteConceptClicked() {
-    if (deleteConceptInfo == null) {
-      return;
-    }
-    const {namespace, name} = deleteConceptInfo;
-    $deleteConcept.mutate([namespace, name], {
-      onSuccess: () => {
-        deleteConceptInfo = null;
-        goto(homeLink());
-      }
-    });
-  }
 
   $: link = conceptLink(namespace, conceptName);
 
@@ -122,23 +106,7 @@
     </div>
   </div>
 
-  {#if deleteConceptInfo}
-    <Modal
-      danger
-      open
-      modalHeading="Delete concept"
-      primaryButtonText="Delete"
-      primaryButtonIcon={$deleteConcept.isLoading ? InProgress : undefined}
-      secondaryButtonText="Cancel"
-      on:click:button--secondary={() => (deleteConceptInfo = null)}
-      on:close={() => (deleteConceptInfo = null)}
-      on:submit={() => deleteConceptClicked()}
-    >
-      <p class="!text-lg">
-        Confirm deleting <code>{deleteConceptInfo.namespace}/{deleteConceptInfo.name}</code> ?
-      </p>
-      <p class="mt-2">This is a permanent action and cannot be undone.</p>
-    </Modal>
+  {#if settingsOpen}
+    <ConceptSettingsModal bind:open={settingsOpen} {namespace} {conceptName} />
   {/if}
-  <ConceptSettingsModal bind:open={settingsOpen} {namespace} {conceptName} />
 </Page>

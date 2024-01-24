@@ -1,6 +1,10 @@
 <script lang="ts">
   import {goto} from '$app/navigation';
-  import {editConceptMutation, queryConcepts} from '$lib/queries/conceptQueries';
+  import {
+    editConceptMutation,
+    queryConceptModels,
+    queryConcepts
+  } from '$lib/queries/conceptQueries';
   import {queryAuthInfo} from '$lib/queries/serverQueries';
   import {queryEmbeddings} from '$lib/queries/signalQueries';
   import {createDatasetViewStore} from '$lib/stores/datasetViewStore';
@@ -68,6 +72,8 @@
     if (!concept.namespace || !concept.concept_name) return;
     $conceptMutation.mutate([concept.namespace, concept.concept_name, {insert: [{text, label}]}]);
   }
+
+  $: conceptModels = queryConceptModels(concept.namespace, concept.concept_name);
 </script>
 
 <div class="flex h-full w-full flex-col gap-y-8 px-10">
@@ -99,7 +105,13 @@
 
   <Expandable expanded>
     <div slot="above" class="text-md font-semibold">Try it</div>
-    <ConceptPreview example={randomPositive} {concept} slot="below" />
+    <div slot="below">
+      {#if randomPositive}
+        <ConceptPreview example={randomPositive} {concept} />
+      {:else}
+        <div class="text-gray-600">No examples to preview. Please add examples.</div>
+      {/if}
+    </div>
   </Expandable>
 
   <Expandable>
@@ -133,9 +145,15 @@
   {#if $embeddings.data}
     <Expandable expanded>
       <div slot="above" class="text-md font-semibold">Metrics</div>
-      <div slot="below" class="model-metrics flex gap-x-4">
+      <div slot="below" class="model-metrics flex flex-wrap gap-x-4 gap-y-4">
         {#each $embeddings.data as embedding}
-          <ConceptMetrics {concept} embedding={embedding.name} />
+          {@const model = $conceptModels.data?.find(m => m.embedding_name == embedding.name)}
+          <ConceptMetrics
+            {concept}
+            embedding={embedding.name}
+            {model}
+            isFetching={$conceptModels.isFetching}
+          />
         {/each}
       </div>
     </Expandable>

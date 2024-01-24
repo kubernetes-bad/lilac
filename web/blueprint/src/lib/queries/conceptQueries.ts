@@ -34,8 +34,6 @@ export const editConceptMetadataMutation = createApiMutation(ConceptsService.edi
   }
 });
 
-export const deleteConceptMutation = createApiMutation(ConceptsService.deleteConcept, {
-  onSuccess: () => queryClient.invalidateQueries([CONCEPTS_TAG])
-});
+export const deleteConceptMutation = createApiMutation(ConceptsService.deleteConcept);
 
 export const queryConceptScore = createApiQuery(ConceptsService.score, CONCEPTS_TAG);
