@@ -2666,7 +2666,7 @@ class DatasetDuckDB(Dataset):
     is_petal = schema.get_field(path).dtype is not None
 
     # NOTE: The order of this array matters as we check the source and map manifests for fields
-    # before reading signal manifests, via source_or_map_has_path.s
+    # before reading signal manifests, via source_or_map_has_path.
     parquet_manifests: list[Union[SourceManifest, SignalManifest, MapManifest]] = [
       self._source_manifest,
       *self._map_manifests,
@@ -2682,6 +2682,7 @@ class DatasetDuckDB(Dataset):
         continue
       if exclude_signals and isinstance(m, SignalManifest):
         continue
+
       # Skip this parquet file if it doesn't contain the path.
       # if not schema_contains_path(m.data_schema, path):
       #   continue
@@ -3767,17 +3768,17 @@ def _remove_signals_from_field(field: Field) -> Optional[Field]:
   if field.fields:
     fields: dict[str, Field] = {}
     for key, sub_field in field.fields.items():
-      if not sub_field.signal:
-        sub_field = _remove_signals_from_field(sub_field)
-        if sub_field:
-          fields[key] = sub_field
+      if sub_field and not sub_field.signal:
+        sub_field_no_signals = _remove_signals_from_field(sub_field)
+        if sub_field_no_signals:
+          fields[key] = sub_field_no_signals
     return Field(fields=fields, dtype=field.dtype)
 
   if field.repeated_field:
     if not field.signal:
-      sub_field = _remove_signals_from_field(field.repeated_field)
-      if sub_field:
-        return Field(repeated_field=sub_field, dtype=field.dtype)
+      sub_field_no_signals = _remove_signals_from_field(field.repeated_field)
+      if sub_field_no_signals:
+        return Field(repeated_field=sub_field_no_signals, dtype=field.dtype)
       else:
         return None
     else:

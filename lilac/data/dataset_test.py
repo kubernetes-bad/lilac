@@ -303,6 +303,12 @@ def test_select_rows_exclude_signals(make_test_data: TestDataMaker) -> None:
     {'text': 'everybody', 'text_map': 'everybody_mapped'},
   ]
 
+  result = dataset.select_rows(['text'], combine_columns=True, exclude_signals=True)
+  assert list(result) == [
+    {'text': 'hello'},
+    {'text': 'everybody'},
+  ]
+
 
 def test_merge_values(make_test_data: TestDataMaker) -> None:
   dataset = make_test_data([{'text': 'hello'}, {'text': 'everybody'}])
