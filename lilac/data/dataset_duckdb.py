@@ -701,12 +701,17 @@ class DatasetDuckDB(Dataset):
         self._clear_joint_table_cache()
         return self._recompute_joint_table(latest_mtime_micro_sec, tuple(sorted(rapid_change)))
 
-  def count(self, query_options: Optional[DuckDBQueryParams] = None) -> int:
-    """Count the number of rows."""
-    if query_options is None:
-      option_sql = ''
-    else:
-      option_sql = self._compile_select_options(query_options)
+  @override
+  def count(
+    self,
+    filters: Optional[list[Filter]] = None,
+    limit: Optional[int] = None,
+    include_deleted: bool = False,
+  ) -> int:
+    manifest = self.manifest()
+    filters, _ = self._normalize_filters(filters, col_aliases={}, udf_aliases={}, manifest=manifest)
+    query_options = DuckDBQueryParams(filters=filters, limit=limit, include_deleted=include_deleted)
+    option_sql = self._compile_select_options(query_options)
     return cast(
       tuple,
       self.con.execute(f'SELECT COUNT(*) FROM (SELECT {ROWID} from t {option_sql})').fetchone(),
@@ -1167,7 +1172,7 @@ class DatasetDuckDB(Dataset):
 
     query_params = DuckDBQueryParams(include_deleted=include_deleted, filters=filters, limit=limit)
     offset = self._get_cache_len(jsonl_cache_filepath, overwrite=overwrite)
-    estimated_len = self.count(query_params)
+    estimated_len = self.count(filters=filters, limit=limit, include_deleted=include_deleted)
 
     if task_id is not None:
       progress_bar = get_progress_bar(offset=offset, estimated_len=estimated_len, task_id=task_id)
@@ -1295,7 +1300,7 @@ class DatasetDuckDB(Dataset):
 
     query_params = DuckDBQueryParams(include_deleted=include_deleted, filters=filters, limit=limit)
     offset = self._get_cache_len(jsonl_cache_filepath, overwrite=overwrite)
-    estimated_len = self.count(query_params)
+    estimated_len = self.count(filters=filters, limit=limit, include_deleted=include_deleted)
 
     if task_id is not None:
       progress_bar = get_progress_bar(offset=offset, estimated_len=estimated_len, task_id=task_id)
@@ -3211,7 +3216,7 @@ class DatasetDuckDB(Dataset):
     )
 
     offset = self._get_cache_len(jsonl_cache_filepath, overwrite=overwrite)
-    estimated_len = self.count(query_params)
+    estimated_len = self.count(filters=filters, limit=limit, include_deleted=include_deleted)
     if task_id is not None:
       progress_bar = get_progress_bar(task_id, offset=offset, estimated_len=estimated_len)
     else:

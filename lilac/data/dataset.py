@@ -441,6 +441,26 @@ class Dataset(abc.ABC):
     self.update_settings(settings)
 
   @abc.abstractmethod
+  def count(
+    self,
+    filters: Optional[Sequence[FilterLike]] = None,
+    limit: Optional[int] = None,
+    include_deleted: bool = False,
+  ) -> int:
+    """Count the number of rows in the dataset.
+
+    Args:
+      filters: Filters to apply to the row; only matching rows will be counted.
+      limit: Limit the number of rows to count. (The returned answer may be smaller than LIMIT,
+        if filters reduce the row count to below the limit!)
+      include_deleted: Whether to include deleted rows in the count.
+
+    Returns:
+      The number of rows in the dataset matching the selection parameters.
+    """
+    pass
+
+  @abc.abstractmethod
   def compute_signal(
     self,
     signal: Signal,
