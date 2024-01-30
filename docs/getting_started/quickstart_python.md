@@ -130,8 +130,8 @@ question__cluster:
 ## Select specific rows
 
 Let's find all clusters that talk about movies via [](#Dataset.select_rows), which works very
-similarly to a `SQL Select` statement. We do this by adding an [`exists`](#Filter.op) filter on
-`question__cluster.cluster_title`.
+similarly to a `SQL Select` statement. We do this by adding an [`regex_matches`](#Filter.op) filter
+on `question__cluster.cluster_title`.
 
 ```py
 df_with_emails = dataset.select_rows(
