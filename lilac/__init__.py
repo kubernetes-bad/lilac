@@ -53,6 +53,7 @@ __all__ = [
   'from_dicts',
   'from_huggingface',
   'get_dataset',
+  'download',
   'has_dataset',
   'list_datasets',
   'init',
