@@ -28,7 +28,7 @@
     } else if (end == null) {
       return `≥ ${formatValue(start)}`;
     } else {
-      return `${formatValue(start)} .. ${formatValue(end)}`;
+      return `[${formatValue(start)} .. ${formatValue(end)})`;
     }
   }
   const dispatch = createEventDispatcher();

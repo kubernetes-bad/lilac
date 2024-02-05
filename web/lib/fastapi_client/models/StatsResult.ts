@@ -12,7 +12,7 @@ export type StatsResult = {
     approx_count_distinct: number;
     min_val?: (number | string | null);
     max_val?: (number | string | null);
-    value_samples?: (Array<number> | null);
+    value_samples?: Array<number>;
     avg_text_length?: (number | null);
 };
 

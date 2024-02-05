@@ -20,6 +20,7 @@ from pydantic import (
   StrictFloat,
   StrictInt,
   StrictStr,
+  field_serializer,
   field_validator,
 )
 from pydantic import Field as PydanticField
@@ -115,10 +116,15 @@ class StatsResult(BaseModel):
   # Defined for numeric features.
   min_val: Optional[Union[float, date, datetime]] = None
   max_val: Optional[Union[float, date, datetime]] = None
-  value_samples: Optional[list[float]] = None  # Used for approximating histogram bins
+  value_samples: list[float] = PydanticField(default=[], exclude=True, repr=False) # Samples for calculating histogram bins.
 
   # Defined for text features.
   avg_text_length: Optional[float] = None
+
+  def __eq__(self, other: object) -> bool:
+    if not isinstance(other, StatsResult):
+      return NotImplemented
+    return self.model_dump(exclude={'value_samples'}) == other.model_dump(exclude={'value_samples'})
 
 
 class MediaResult(BaseModel):
