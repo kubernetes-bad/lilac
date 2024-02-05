@@ -5,7 +5,7 @@ import abc
 import enum
 import pathlib
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, date
 from typing import Any, Callable, Iterable, Iterator, Literal, Optional, Sequence, Union
 
 import numpy as np
@@ -112,9 +112,10 @@ class StatsResult(BaseModel):
   # The approximate number of distinct leaf values.
   approx_count_distinct: int
 
-  # Defined for ordinal features.
-  min_val: Optional[Union[float, datetime]] = None
-  max_val: Optional[Union[float, datetime]] = None
+  # Defined for numeric features.
+  min_val: Optional[Union[float, date, datetime]] = None
+  max_val: Optional[Union[float, date, datetime]] = None
+  value_samples: Optional[list[float]] = None  # Used for approximating histogram bins
 
   # Defined for text features.
   avg_text_length: Optional[float] = None
