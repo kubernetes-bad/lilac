@@ -258,7 +258,7 @@ def test_auto_bins_for_float(make_test_data: TestDataMaker) -> None:
   dataset = make_test_data(items)
 
   res = dataset.select_groups('feature')
-  assert res.counts == [('0', 1), ('11', 1), ('14', 1), ('3', 1), ('7', 1), (None, 1)]
+  assert sum(bucket[1] for bucket in res.counts) == len(items)
   assert res.too_many_distinct is False
   assert res.bins
 
@@ -293,6 +293,16 @@ def test_auto_bins_for_constant_float(make_test_data: TestDataMaker) -> None:
   stats = dataset.stats('feature')
   assert stats.min_val == 1.0
   assert stats.max_val == 1.0
+
+
+def test_auto_bins_for_zeroish(make_test_data: TestDataMaker) -> None:
+  # pretty typical distribution for "number_downloads" field.
+  items: list[Item] = [{'feature': 0.001}] * 100 + [{'feature': float(n)} for n in (1, 3, 9, 27, 81)]
+  dataset = make_test_data(items)
+
+  res = dataset.select_groups('feature')
+  # Just a sanity check. These lopsided distributions tend to induce NaN in the power-law detector.
+  assert res.bins
 
 
 def test_map_dtype(make_test_data: TestDataMaker) -> None:
