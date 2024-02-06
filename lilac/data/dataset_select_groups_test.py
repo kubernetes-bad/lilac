@@ -295,13 +295,17 @@ def test_auto_bins_for_constant_float(make_test_data: TestDataMaker) -> None:
   assert stats.max_val == 1.0
 
 
-def test_auto_bins_for_zeroish(make_test_data: TestDataMaker) -> None:
-  # pretty typical distribution for "number_downloads" field.
-  items: list[Item] = [{'feature': 0.001}] * 100 + [{'feature': float(n)} for n in (1, 3, 9, 27, 81)]
+@pytest.mark.parametrize('repeated_value', [-1, 0, 1])
+def test_auto_bins_for_skewed_dist(make_test_data: TestDataMaker, repeated_value: int) -> None:
+  # pretty typical skewed distribution for columns like "num_upvotes" or "num_downloads".
+  # sometimes -1 is used as a sentinel value.
+  items: list[Item] = [{'feature': repeated_value}] * 50 + [{'feature': n} for n in (10, 10, 1000)]
   dataset = make_test_data(items)
 
   res = dataset.select_groups('feature')
   # Just a sanity check. These lopsided distributions tend to induce NaN in the power-law detector.
+  # They also tend to create bins that are power-law clustered around 0, leading to rounding bins
+  # on top of each other.
   assert res.bins
 
 
