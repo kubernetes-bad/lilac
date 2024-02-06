@@ -299,7 +299,7 @@ def test_auto_bins_for_constant_float(make_test_data: TestDataMaker) -> None:
 def test_auto_bins_for_skewed_dist(make_test_data: TestDataMaker, repeated_value: int) -> None:
   # pretty typical skewed distribution for columns like "num_upvotes" or "num_downloads".
   # sometimes -1 is used as a sentinel value.
-  items: list[Item] = [{'feature': repeated_value}] * 50 + [{'feature': n} for n in (10, 10, 1000)]
+  items: list[Item] = [{'feature': v} for v in ([repeated_value] * 50 + [10, 10, 1000])]
   dataset = make_test_data(items)
 
   res = dataset.select_groups('feature')
