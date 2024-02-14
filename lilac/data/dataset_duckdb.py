@@ -2372,7 +2372,10 @@ class DatasetDuckDB(Dataset):
       has_repeated_field = any(subpath == PATH_WILDCARD for subpath in sql_path)
       if has_repeated_field:
         sort_sql = (
-          f'list_min({sort_sql})' if sort_order == SortOrder.ASC else f'list_max({sort_sql})'
+          f'list_min(list_filter({sort_sql}, x -> NOT isnan(x) AND x IS NOT NULL AND isfinite(x)))'
+          if sort_order == SortOrder.ASC
+          else f'list_max(list_filter({sort_sql},'
+          ' x -> NOT isnan(x) AND x IS NOT NULL AND isfinite(x)))'
         )
 
       # Separate sort columns into two groups: those that need to be sorted before and after UDFs.
@@ -3950,6 +3953,7 @@ def _auto_bins(stats: StatsResult) -> list[Bin]:
     return [('0', const_val, None)]
 
   is_integer = stats.value_samples and all(isinstance(val, int) for val in stats.value_samples)
+
   def _round(value: float) -> float:
     # Select a round ndigits as a function of the value range. We offset it by 2 to allow for some
     # decimal places as a function of the range.

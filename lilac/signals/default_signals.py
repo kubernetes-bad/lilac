@@ -12,6 +12,7 @@ from .lang_detection import LangDetectionSignal
 from .markdown_code_block import MarkdownCodeBlockSignal
 from .near_dup import NearDuplicateSignal
 from .ner import SpacyNER
+from .perplexity import Perplexity
 from .pii import PIISignal
 from .text_statistics import TextStatisticsSignal
 
@@ -43,3 +44,4 @@ def register_default_signals() -> None:
 
   register_signal(JinaV2Small, exists_ok=True)
   register_signal(JinaV2Base, exists_ok=True)
+  register_signal(Perplexity, exists_ok=True)
