@@ -16,6 +16,7 @@ import {
   type LilacSchema,
   type LilacSelectRowsSchema,
   type MetadataSearch,
+  type MistralInstructSignal,
   type Path,
   type Search,
   type SelectRowsOptions,
@@ -149,13 +150,48 @@ export function createDatasetViewStore(
         return state;
       });
     },
+    setPromptUdf: (path: Path, prompt: string) =>
+      update(state => {
+        state.query.columns = state.query.columns?.filter(c => {
+          if (typeof c === 'string' || Array.isArray(c)) return true;
+          if (pathIsEqual(path, c.path) && c.signal_udf?.signal_name === 'mistral_instruct') {
+            return false;
+          }
+          return true;
+        });
+        console.log('setting prompt udf....', path, prompt);
+        state.query.columns?.push({
+          path: path,
+          signal_udf: {
+            signal_name: 'mistral_instruct',
+            instructions: prompt
+          } as MistralInstructSignal
+        });
+
+        return state;
+      }),
+    removePromptUdf: (path: Path) =>
+      update(state => {
+        state.query.columns = state.query.columns?.filter(c => {
+          if (typeof c === 'string' || Array.isArray(c)) return true;
+          if (pathIsEqual(path, c.path) && c.signal_udf?.signal_name === 'mistral_instruct') {
+            return false;
+          }
+          return true;
+        });
+
+        return state;
+      }),
     addUdfColumn: (column: Column) =>
       update(state => {
+        console.log('addUdfColumn', column, state.query.columns);
         state.query.columns?.push(column);
         return state;
       }),
     removeUdfColumn: (column: Column) =>
       update(state => {
+        console.log('removeUdfColumn', column, state.query.columns);
+
         state.query.columns = state.query.columns?.filter(c => c !== column);
         return state;
       }),

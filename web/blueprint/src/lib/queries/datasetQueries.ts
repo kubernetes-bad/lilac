@@ -169,6 +169,7 @@ function getRowMetadataBatcher(
   selectRowsOptions: SelectRowsOptions
 ): Batcher<SelectRowsResponse['rows'], BatchMetadataRequest, SelectRowsResponse['rows'][0] | null> {
   const key = `${namespace}/${datasetName}/${JSON.stringify(selectRowsOptions)}`;
+  console.log('key=', key);
   if (batchedRowMetadataCache[key] == null) {
     batchedRowMetadataCache[key] = createBatcher({
       fetcher: async (request: BatchMetadataRequest[]) => {
@@ -176,7 +177,7 @@ function getRowMetadataBatcher(
         const selectRowsResponse = await DatasetsService.selectRows(namespace, datasetName, {
           filters: [{path: [ROWID], op: 'in', value: rowIds}],
           searches: selectRowsOptions.searches,
-          columns: [PATH_WILDCARD, ROWID],
+          columns: [PATH_WILDCARD, ROWID, ...(selectRowsOptions.columns || [])],
           combine_columns: true,
           limit: rowIds.length,
           include_deleted: true
@@ -201,6 +202,7 @@ export const queryRowMetadata = (
   enabled = true
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): CreateQueryResult<Awaited<Record<string, any> | null>, ApiError> => {
+  console.log('options to the endpoitn', selectRowsOptions);
   const tags = [DATASETS_TAG, namespace, datasetName, DATASET_ITEM_METADATA_TAG, rowId];
   const endpoint = getRowMetadataBatcher(namespace, datasetName, selectRowsOptions).fetch;
   type TQueryFnData = Awaited<ReturnType<typeof endpoint>>;

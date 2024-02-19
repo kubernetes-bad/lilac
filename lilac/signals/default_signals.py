@@ -8,6 +8,7 @@ from ..embeddings.nomic_embed import NomicEmbed15, NomicEmbed15_256
 from ..embeddings.openai import OpenAIEmbedding
 from ..embeddings.sbert import SBERT
 from ..signal import register_signal
+from ..signals.mistral_instruct import MistralInstructSignal
 from .concept_labels import ConceptLabelsSignal
 from .concept_scorer import ConceptSignal
 from .lang_detection import LangDetectionSignal
@@ -31,6 +32,7 @@ def register_default_signals() -> None:
   register_signal(NearDuplicateSignal, exists_ok=True)
   register_signal(LangDetectionSignal, exists_ok=True)
   register_signal(MarkdownCodeBlockSignal, exists_ok=True)
+  register_signal(MistralInstructSignal, exists_ok=True)
 
   # Embeddings.
   register_signal(Cohere, exists_ok=True)

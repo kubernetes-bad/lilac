@@ -28,11 +28,20 @@
     pathIsMatching,
     pathMatchesPrefix,
     petals,
+    type Column,
     type DataTypeCasted,
     type LilacField,
     type LilacValueNode,
+    type MistralInstructSignal,
     type Path
   } from '$lilac';
+  import {
+    ComposedModal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
+    TextArea
+  } from 'carbon-components-svelte';
   import {
     CatalogPublish,
     ChevronDown,
@@ -41,8 +50,11 @@
     DataView,
     DataViewAlt,
     DirectionFork,
+    ListBulleted,
     Search,
-    Undo
+    Undo,
+    View,
+    ViewOff
   } from 'carbon-icons-svelte';
   import ButtonDropdown from '../ButtonDropdown.svelte';
   import {hoverTooltip} from '../common/HoverTooltip';
@@ -246,6 +258,54 @@
   $: viewType = $settings.data?.ui?.view_type || 'single_item';
 
   $: markdown = userPreview !== undefined ? userPreview : datasetSettingsMarkdown;
+
+  // Prompt modal.
+  $: promptColumns = $datasetViewStore.query.columns?.filter(c => {
+    if (typeof c === 'string' || Array.isArray(c)) return false;
+    if (pathIsEqual(c.path, rootPath) && c.signal_udf?.signal_name === 'mistral_instruct') {
+      return true;
+    }
+    return false;
+  }) as Column[];
+  $: transformationPrompt = (promptColumns?.[0]?.signal_udf as MistralInstructSignal).instructions;
+  let userTransformationPrompt: string | undefined = undefined;
+
+  $: {
+    if (transformationPrompt != null && userTransformationPrompt == null) {
+      userTransformationPrompt = transformationPrompt;
+    }
+  }
+
+  $: console.log('field=', field);
+  $: promptResultField = Object.values(field?.fields || {}).find(
+    f => f.signal?.signal_name === 'mistral_instruct'
+  );
+  $: promptCompareState =
+    promptResultField != null && rootPath != null
+      ? {
+          column: rootPath,
+          compareToColumn: promptResultField.path,
+          swapDirection: false
+        }
+      : null;
+
+  let promptModalOpen = false;
+  let promptDisabled = false;
+
+  function submitPrompt() {
+    console.log('1');
+    if (transformationPrompt != null) promptDisabled = false;
+    console.log('2');
+    if (rootPath == null || userTransformationPrompt == null) return;
+    console.log('3');
+    if (!promptDisabled && userTransformationPrompt != null) {
+      datasetViewStore.setPromptUdf(rootPath, userTransformationPrompt);
+    } else {
+      datasetViewStore.removePromptUdf(rootPath);
+    }
+
+    promptModalOpen = false;
+  }
 </script>
 
 {#if isLeaf}
@@ -317,6 +377,23 @@
             >{#if userExpanded}<ChevronUp size={16} />{:else}<ChevronDown size={16} />{/if}
           </button>
         </div>
+        <div>
+          <button
+            on:click={() => (promptModalOpen = true)}
+            use:hoverTooltip={{text: 'Configure prompt'}}
+            ><ListBulleted />
+          </button>
+          <button
+            on:click={() => (promptDisabled = !promptDisabled)}
+            use:hoverTooltip={{text: 'Toggle prompt'}}
+          >
+            {#if promptDisabled}
+              <ViewOff />
+            {:else}
+              <View />
+            {/if}
+          </button>
+        </div>
       </div>
     </div>
     <div class="flex grow flex-col font-normal">
@@ -329,7 +406,16 @@
       {/if}
 
       <div class="grow pt-1">
-        {#if colCompareState == null && field != null}
+        {#if promptCompareState != null && rootPath != null && !promptDisabled}
+          <ItemMediaDiff
+            {row}
+            colCompareState={promptCompareState}
+            bind:textIsOverBudget
+            isExpanded={userExpanded}
+            {datasetViewHeight}
+            {isFetching}
+          />
+        {:else if colCompareState == null && field != null}
           <ItemMediaTextContent
             hidden={markdown}
             text={value}
@@ -399,3 +485,26 @@
     {/each}
   </div>
 {/if}
+
+{#if isLeaf}
+  <ComposedModal
+    open={promptModalOpen}
+    on:submit={submitPrompt}
+    on:close={() => (promptModalOpen = false)}
+  >
+    <ModalHeader title={'Configure prompt'} />
+    <ModalBody hasForm>
+      <div class="flex flex-row">
+        <TextArea bind:value={userTransformationPrompt} />
+      </div>
+    </ModalBody>
+    <ModalFooter
+      primaryButtonText={'Save'}
+      secondaryButtonText="Cancel"
+      on:click:button--secondary={() => {
+        promptModalOpen = false;
+      }}
+    />
+  </ComposedModal>
+{/if}
+<!--  primaryButtonDisabled={errors.length > 0 || path == null || selectedConceptInfo == null} -->

@@ -18,7 +18,7 @@
   const store = getDatasetViewContext();
   $: schema = queryDatasetSchema($store.namespace, $store.datasetName);
 
-  const DEFAULT_LIMIT_SELECT_ROW_IDS = 5;
+  const DEFAULT_LIMIT_SELECT_ROW_IDS = 1;
 
   let limit = DEFAULT_LIMIT_SELECT_ROW_IDS;
   let rowsResponse: SelectRowsResponse | undefined;

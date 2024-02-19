@@ -35,6 +35,7 @@ from .schema import Bin, Path, normalize_path
 from .signal import Signal, TextEmbeddingSignal, TextSignal
 from .signals.concept_labels import ConceptLabelsSignal
 from .signals.concept_scorer import ConceptSignal
+from .signals.mistral_instruct import MistralInstructSignal
 from .signals.semantic_similarity import SemanticSimilaritySignal
 from .signals.substring_search import SubstringSignal
 from .utils import to_yaml
@@ -125,6 +126,7 @@ Filter = Union[BinaryFilter, StringFilter, UnaryFilter, ListFilter]
 AllSignalTypes = Union[
   ConceptSignal,
   ConceptLabelsSignal,
+  MistralInstructSignal,
   SubstringSignal,
   SemanticSimilaritySignal,
   TextEmbeddingSignal,

@@ -58,6 +58,7 @@ export type { MapInfo } from './models/MapInfo';
 export type { MapType } from './models/MapType';
 export type { MergeConceptDraftOptions } from './models/MergeConceptDraftOptions';
 export type { MetadataSearch } from './models/MetadataSearch';
+export type { MistralInstructSignal } from './models/MistralInstructSignal';
 export type { OverallScore } from './models/OverallScore';
 export type { PivotOptions } from './models/PivotOptions';
 export type { PivotResult } from './models/PivotResult';
