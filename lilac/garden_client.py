@@ -12,7 +12,7 @@ from .env import env
 from .schema import Item
 from .utils import DebugTimer
 
-GARDEN_FRONT_GATE_URL = 'https://lilacai--front-gate-fastapi-app-dev.modal.run'
+GARDEN_FRONT_GATE_URL = 'https://lilacai--front-gate-fastapi-app.modal.run'
 GARDEN_ENCODING_SCHEME_HEADER = 'X-Lilac-EncodingScheme'
 
 
