@@ -32,8 +32,8 @@ def _call_garden(endpoint_name: str, docs: list[Any], **kwargs: Any) -> Iterator
       data=json.dumps(docs),
       params={k: str(v) for k, v in kwargs.items()},
       headers={
-        'Authorization': 'Bearer %s' % lilac_api_key,
-        'X-Lilac-RowCount': str(len(docs)),
+        'Authorization': f'Bearer {lilac_api_key}',
+        'X-Lilac-DocCount': str(len(docs)),
       },
       stream=True,
     ) as response:
