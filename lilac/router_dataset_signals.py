@@ -1,5 +1,5 @@
 """Routing endpoints for running signals on datasets."""
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Union
 
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
@@ -7,9 +7,11 @@ from pydantic import BaseModel, SerializeAsAny, field_validator
 from pydantic import Field as PydanticField
 
 from .auth import UserInfo, get_session_user, get_user_access
+from .data.clustering import default_cluster_output_path
+from .dataset_format import DatasetFormatInputSelector, get_dataset_format_cls
 from .db_manager import get_dataset
 from .router_utils import RouteErrorHandler
-from .schema import Path
+from .schema import Path, PathTuple, normalize_path
 from .signal import Signal, resolve_signal
 from .tasks import TaskId, get_task_manager, launch_task
 
@@ -82,7 +84,9 @@ def compute_signal(
 class ClusterOptions(BaseModel):
   """The request for the cluster endpoint."""
 
-  input: Path
+  input: Optional[Path] = None
+  input_selector: Optional[str] = None
+
   output_path: Optional[Path] = None
   use_garden: bool = PydanticField(
     default=False, description='Accelerate computation by running remotely on Lilac Garden.'
@@ -107,14 +111,36 @@ def cluster(
   if not get_user_access(user).dataset.compute_signals:
     raise HTTPException(401, 'User does not have access to compute clusters over this dataset.')
 
-  path_str = '.'.join(map(str, options.input))
-  task_name = f'[{namespace}/{dataset_name}] Clustering "{path_str}"'
-  task_id = get_task_manager().task_id(name=task_name)
   dataset = get_dataset(namespace, dataset_name)
+  manifest = dataset.manifest()
+
+  cluster_input: Optional[Union[DatasetFormatInputSelector, PathTuple]] = None
+  if options.input:
+    path_str = '.'.join(map(str, options.input))
+    task_name = f'[{namespace}/{dataset_name}] Clustering "{path_str}"'
+    cluster_input = normalize_path(options.input)
+  elif options.input_selector:
+    dataset_format = manifest.dataset_format
+    if dataset_format is None:
+      raise ValueError('Dataset format is not defined.')
+
+    format_cls = get_dataset_format_cls(dataset_format.name)
+    if format_cls is None:
+      raise ValueError(f'Unknown format: {dataset_format.name}')
+
+    cluster_input = format_cls.input_selectors[options.input_selector]
+
+    task_name = (
+      f'[{namespace}/{dataset_name}] Clustering using input selector ' f'"{options.input_selector}"'
+    )
+  else:
+    raise HTTPException(400, 'Either input or input_selector must be provided.')
+
+  task_id = get_task_manager().task_id(name=task_name)
 
   def run() -> None:
     dataset.cluster(
-      options.input,
+      cluster_input,
       options.output_path,
       use_garden=options.use_garden,
       overwrite=options.overwrite,
@@ -123,6 +149,18 @@ def cluster(
 
   launch_task(task_id, run)
   return ClusterResponse(task_id=task_id)
+
+
+class DefaultClusterOutputPathOptions(BaseModel):
+  """Request body for the default cluster output path endpoint."""
+
+  input_path: Path
+
+
+@router.post('/{namespace}/{dataset_name}/default_cluster_output_path')
+def get_default_cluster_output_path(options: DefaultClusterOutputPathOptions) -> Path:
+  """Get format selectors for the dataset if a format has been inferred."""
+  return default_cluster_output_path(options.input_path)
 
 
 class DeleteSignalOptions(BaseModel):
