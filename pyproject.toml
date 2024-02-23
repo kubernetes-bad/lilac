@@ -21,7 +21,7 @@ fsspec = "^2023.9.2"
 gcsfs = "^2023.9.2"
 google-cloud-storage = "^2.5.0"
 gunicorn = "^21.2.0"
-hnswlib = "^0.7.0"                                       # Fast KNN vector store.
+hnswlib = "^0.8.0"                                       # Fast KNN vector store.
 httpx = "^0.24.1"
 instructor = "^0.4.0"
 itsdangerous = "^2.1.2"
@@ -80,8 +80,8 @@ langdetect = { version = "^1.0.9", optional = true }
 langsmith = { version = "^0.0.41", optional = true }
 
 # LlamaIndex for GitHub source ingestion.
-llama-index = { version = "^0.9.10", optional = true, python = ">=3.9,<3.12" }
-llama-hub = { version = "^0.0.50", optional = true, python = ">=3.9,<3.12" }
+llama-index = { version = "^0.10", optional = true, python = ">=3.9,<3.12" }
+llama-hub = { version = "^0.0.67", optional = true, python = ">=3.9,<3.12" }
 
 # For HDBScan to reduce dimensionality before running clustering.
 umap-learn = { version = "^0.5.4", optional = true }
