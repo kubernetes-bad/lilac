@@ -7,6 +7,7 @@ from typing import Any, Callable, Iterator
 
 import numpy as np
 import requests
+from pydantic import BaseModel
 
 from .env import env
 from .schema import Item
@@ -14,6 +15,8 @@ from .utils import DebugTimer
 
 GARDEN_FRONT_GATE_URL = 'https://lilacai--front-gate-fastapi-app.modal.run'
 GARDEN_ENCODING_SCHEME_HEADER = 'X-Lilac-EncodingScheme'
+GARDEN_DOC_COUNT_HEADER = 'X-Lilac-DocCount'
+PLATFORM_LIST_ENDPOINTS = 'https://platform-v3omj4i5vq-uc.a.run.app/api/v1/entitlements/list'
 
 
 def _decode_b64_npy(b: bytes) -> np.ndarray:
@@ -33,7 +36,7 @@ def _call_garden(endpoint_name: str, docs: list[Any], **kwargs: Any) -> Iterator
       params={k: str(v) for k, v in kwargs.items()},
       headers={
         'Authorization': f'Bearer {lilac_api_key}',
-        'X-Lilac-DocCount': str(len(docs)),
+        GARDEN_DOC_COUNT_HEADER: str(len(docs)),
       },
       stream=True,
     ) as response:
@@ -44,4 +47,17 @@ def _call_garden(endpoint_name: str, docs: list[Any], **kwargs: Any) -> Iterator
         yield decoder(line)
 
 
-cluster = functools.partial(_call_garden, 'cluster')
+cluster = functools.partial(_call_garden, 'clustering')
+pii = functools.partial(_call_garden, 'pii')
+
+
+class GardenEndpoint(BaseModel):
+  entitlement_name: str
+  limitations: dict[str, Any]
+
+
+def list_endpoints() -> list[GardenEndpoint]:
+  """List the available endpoints."""
+  # TODO: put api key in Auth header instead of json body.
+  lilac_api_key = env('LILAC_API_KEY')
+  return requests.post(PLATFORM_LIST_ENDPOINTS, json={'api_key': lilac_api_key}).json()

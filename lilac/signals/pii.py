@@ -1,14 +1,13 @@
 """Compute text statistics for a document."""
 from typing import ClassVar, Iterator, Optional
 
-import modal
 from typing_extensions import override
 
-from ..batch_utils import compress_docs
+from .. import garden_client
 from ..schema import Field, Item, RichData, SignalInputType, field
 from ..signal import TextSignal
 from ..tasks import TaskExecutionType
-from ..utils import DebugTimer, chunks
+from ..utils import DebugTimer
 
 SECRETS_KEY = 'secrets'
 # Selected categories. For all categories, see:
@@ -72,10 +71,5 @@ class PIISignal(TextSignal):
 
   @override
   def compute_garden(self, docs: Iterator[str]) -> Iterator[Item]:
-    pii = modal.Function.lookup('pii', 'PII.detect')
     with DebugTimer('Computing PII on Lilac Garden'):
-      batches = chunks(docs, PII_REMOTE_BATCH_SIZE)
-      requests = ({'gzipped_docs': compress_docs(b)} for b in batches)
-      for response in pii.map(requests, order_outputs=True):
-        for item in response['result']:
-          yield item
+      yield from garden_client.pii(list(docs))

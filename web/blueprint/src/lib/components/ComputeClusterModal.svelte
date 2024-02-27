@@ -96,10 +96,10 @@
       options.namespace,
       options.datasetName,
       {
-        input: selectedFormatSelector == null ? options.input : null,
+        input: selectedFormatSelector === 'none' ? options.input : null,
         use_garden: options.use_garden,
         output_path: outputColumn,
-        input_selector: selectedFormatSelector,
+        input_selector: selectedFormatSelector === 'none' ? null : selectedFormatSelector,
         overwrite: options.overwrite
       }
     ]);
