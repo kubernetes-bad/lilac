@@ -1,9 +1,11 @@
 """Gegeral Text Embeddings (GTE) model. Open-source model, designed to run on device."""
 import gc
-from typing import TYPE_CHECKING, ClassVar, Optional
+from typing import TYPE_CHECKING, Callable, ClassVar, Optional, cast
 
 import numpy as np
 from typing_extensions import override
+
+from ..splitters.chunk_splitter import TextChunk
 
 if TYPE_CHECKING:
   from sentence_transformers import SentenceTransformer
@@ -14,7 +16,7 @@ from ..schema import Item
 from ..signal import TextEmbeddingSignal
 from ..splitters.spacy_splitter import clustering_spacy_chunker
 from ..tasks import TaskExecutionType
-from .embedding import chunked_compute_embedding
+from .embedding import chunked_compute_embedding, identity_chunker
 from .transformer_utils import SENTENCE_TRANSFORMER_BATCH_SIZE, setup_model_device
 
 # See https://huggingface.co/spaces/mteb/leaderboard for leaderboard of models.
@@ -76,9 +78,11 @@ class NomicEmbed15(TextEmbeddingSignal):
     # While we get docs in batches of 1024, the chunker expands that by a factor of 3-10.
     # The sentence transformer API actually does batching internally, so we pass
     # local_batch_size * 16 to allow the library to see all the chunks at once.
-    return chunked_compute_embedding(
-      _encode, docs, self.local_batch_size * 16, chunker=clustering_spacy_chunker
+    chunker = cast(
+      Callable[[str], list[TextChunk]],
+      clustering_spacy_chunker if self._split else identity_chunker,
     )
+    return chunked_compute_embedding(_encode, docs, self.local_batch_size * 16, chunker=chunker)
 
   @override
   def teardown(self) -> None:
