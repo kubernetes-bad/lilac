@@ -506,6 +506,7 @@ class Dataset(abc.ABC):
     task_id: Optional[TaskId] = None,
     # TODO(0.4.0): colocate with topic_fn.
     category_fn: Optional[TopicFn] = None,
+    skip_noisy_assignment: bool = False,
   ) -> None:
     """Compute clusters for a field of the dataset.
 
@@ -524,6 +525,9 @@ class Dataset(abc.ABC):
         of the task.
       category_fn: A function that returns a category for a set of related titles. It takes a list
         of (doc, membership_score) tuples and returns a single category name.
+      skip_noisy_assignment: If true, noisy points will not be assigned to the nearest cluster.
+        This only has an effect when the clustering is done locally (use_garden=False) and will
+        speedup clustering.
 
     """
     pass

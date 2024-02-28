@@ -53,7 +53,7 @@ MIN_CLUSTER_SIZE_CATEGORY = 5
 UMAP_DIM = 5
 UMAP_SEED = 42
 HDBSCAN_SELECTION_EPS = 0.05
-BATCH_SOFT_CLUSTER_NOISE = 1024
+BATCH_SOFT_CLUSTER_NOISE = 512
 
 
 def cluster_impl(
@@ -68,6 +68,7 @@ def cluster_impl(
   task_id: Optional[TaskId] = None,
   recompute_titles: bool = False,
   batch_size_titling: Optional[int] = None,
+  skip_noisy_assignment: bool = False,
 ) -> None:
   """Compute clusters for a field of the dataset."""
   topic_fn = topic_fn or generate_title_openai
@@ -107,6 +108,13 @@ def cluster_impl(
     cluster_output_path = default_cluster_output_path(path)
   else:
     raise ValueError('input must be provided.')
+
+  if use_garden and skip_noisy_assignment:
+    raise ValueError(
+      '`use_garden` and `skip_noisy_assignment` cannot both be True. '
+      'The garden implementation is heavily optimizied and will always '
+      'assign noisy points to the nearest cluster.'
+    )
 
   # Extract the text from the input path into a temporary column.
   TEXT_COLUMN = 'text'
@@ -154,7 +162,12 @@ def cluster_impl(
       cluster_items = sparse_to_dense_compute(
         docs,
         lambda x: _hdbscan_cluster(
-          x, min_cluster_size, use_garden, num_docs=total_len, task_info=task_info
+          x,
+          min_cluster_size,
+          use_garden,
+          num_docs=total_len,
+          task_info=task_info,
+          skip_noisy_assignment=skip_noisy_assignment,
         ),
       )
       for item, cluster_item in zip(items2, cluster_items):
@@ -208,7 +221,13 @@ def cluster_impl(
       items, items2 = itertools.tee(items)
       docs = (item.get(CLUSTER_TITLE) for item in items)
       cluster_items = sparse_to_dense_compute(
-        docs, lambda x: _hdbscan_cluster(x, MIN_CLUSTER_SIZE_CATEGORY, use_garden)
+        docs,
+        lambda x: _hdbscan_cluster(
+          x,
+          MIN_CLUSTER_SIZE_CATEGORY,
+          use_garden=use_garden,
+          skip_noisy_assignment=skip_noisy_assignment,
+        ),
       )
       for item, cluster_item in zip(items2, cluster_items):
         item[CATEGORY_ID] = (cluster_item or {}).get(CLUSTER_ID, -1)
@@ -298,6 +317,7 @@ def _hdbscan_cluster(
   use_garden: bool = False,
   num_docs: Optional[int] = None,
   task_info: Optional[TaskInfo] = None,
+  skip_noisy_assignment: bool = False,
 ) -> Iterator[Item]:
   """Cluster docs with HDBSCAN."""
   if use_garden:
@@ -338,9 +358,9 @@ def _hdbscan_cluster(
     from umap import UMAP
 
   dim = all_vectors[0].size
-  with DebugTimer(f'UMAP: Reducing dim from {dim} to {UMAP_DIM} of {len(all_vectors)} vectors'):
-    n_neighbors = min(30, len(all_vectors) - 1)
-    if UMAP_DIM < dim and UMAP_DIM < len(all_vectors):
+  n_neighbors = min(30, len(all_vectors) - 1)
+  if UMAP_DIM < dim and UMAP_DIM < len(all_vectors):
+    with DebugTimer(f'UMAP: Reducing dim from {dim} to {UMAP_DIM} of {len(all_vectors)} vectors'):
       reducer = UMAP(
         n_components=UMAP_DIM,
         n_neighbors=n_neighbors,
@@ -375,14 +395,13 @@ def _hdbscan_cluster(
     if cluster_id == -1:
       noisy_vectors.append(all_vectors[i])
   num_noisy = len(noisy_vectors)
-  perc_noisy = 100 * num_noisy / len(clusterer.labels_)
-  log(f'{num_noisy} noise points ({perc_noisy:.1f}%) will be assigned to nearest cluster.')
-
   noisy_labels: list[np.ndarray] = []
   noisy_probs: list[np.ndarray] = []
   labels = clusterer.labels_
   memberships = clusterer.probabilities_
-  if num_noisy > 0 and num_noisy < len(clusterer.labels_):
+  if not skip_noisy_assignment and num_noisy > 0 and num_noisy < len(clusterer.labels_):
+    perc_noisy = 100 * num_noisy / len(clusterer.labels_)
+    log(f'{num_noisy} noise points ({perc_noisy:.1f}%) will be assigned to nearest cluster.')
     with DebugTimer('HDBSCAN: Computing membership for the noise points'):
       for batch_noisy_vectors in chunks(noisy_vectors, BATCH_SOFT_CLUSTER_NOISE):
         batch_noisy_vectors = np.array(batch_noisy_vectors, dtype=np.float32)
