@@ -2940,6 +2940,27 @@ class DatasetDuckDB(Dataset):
             sort=((*output_path, PATH_WILDCARD, 'score'), SortOrder.DESC),
           )
         )
+      elif search.type == 'concept-text-search':
+        # TODO(nsthorat): Fix all this
+        search_signal = ConceptSignal(
+          namespace=search.concept_namespace,
+          concept_name=search.concept_name,
+          embedding=search.embedding,
+        )
+
+        # Add the label UDF.
+        concept_labels_signal = ConceptLabelsSignal(
+          namespace=search.concept_namespace, concept_name=search.concept_name
+        )
+        concept_labels_udf = Column(path=search_path, signal_udf=concept_labels_signal)
+        search_udfs.append(
+          DuckDBSearchUDF(
+            udf=concept_labels_udf,
+            search_path=search_path,
+            output_path=_col_destination_path(concept_labels_udf),
+            sort=None,
+          )
+        )
       else:
         raise ValueError(f'Unknown search operator {search.type}.')
 

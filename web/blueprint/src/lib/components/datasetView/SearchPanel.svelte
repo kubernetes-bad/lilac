@@ -246,7 +246,8 @@
       | 'new-concept'
       | 'keyword-search'
       | 'semantic-search'
-      | 'compute-embedding';
+      | 'compute-embedding'
+      | 'concept-text-search';
     text: string;
     description?: string;
   }
@@ -267,6 +268,10 @@
     id: 'semantic-search',
     text: searchText
   } as SearchItem;
+  $: conceptTextSearchItem = {
+    id: 'concept-text-search',
+    text: searchText
+  } as SearchItem;
   $: computeEmbeddingItem = {
     id: 'compute-embedding',
     text: 'Compute embedding',
@@ -279,6 +284,9 @@
         keywordSearchItem,
         ...(searchText != '' && selectedEmbedding && isEmbeddingComputed
           ? [semanticSearchItem]
+          : []),
+        ...(searchText != '' && selectedEmbedding && isEmbeddingComputed
+          ? [conceptTextSearchItem]
           : []),
         ...(isEmbeddingComputed ? [newConceptItem] : [computeEmbeddingItem]),
         ...labels.map(label => ({
@@ -384,6 +392,17 @@
       datasetViewStore.addSearch({
         path: searchPath,
         type: 'semantic',
+        query: searchText,
+        query_type: 'document',
+        embedding: selectedEmbedding
+      });
+    } else if (e.detail.selectedId == 'concept-text-search') {
+      if (searchText == '' || selectedEmbedding == null) {
+        return;
+      }
+      datasetViewStore.addSearch({
+        path: searchPath,
+        type: 'concept-text-search',
         query: searchText,
         query_type: 'document',
         embedding: selectedEmbedding
@@ -516,6 +535,14 @@
             <Tag><SearchAdvanced /></Tag>
             <div class="ml-2">
               Semantic search:
+              {searchText}
+            </div>
+          </div>
+        {:else if item.id === 'concept-text-search'}
+          <div class="new-keyword flex flex-row items-center justify-items-center">
+            <Tag><SearchAdvanced /></Tag>
+            <div class="ml-2">
+              Concept search:
               {searchText}
             </div>
           </div>

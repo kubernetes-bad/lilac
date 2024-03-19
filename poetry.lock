@@ -2837,13 +2837,13 @@ files = [
 
 [[package]]
 name = "instructor"
-version = "0.4.8"
+version = "0.6.2"
 description = "structured outputs for llm"
 optional = false
-python-versions = ">=3.9,<4.0"
+python-versions = ">=3.10,<4.0"
 files = [
-    {file = "instructor-0.4.8-py3-none-any.whl", hash = "sha256:5c8f9d96e5faf4512fede714219f9db37298427ee4349422c63018851ed6ddc1"},
-    {file = "instructor-0.4.8.tar.gz", hash = "sha256:2a36c04b3a27f9e6cd1c5d3c7bb9e741cd62ce2e30c11e26c4bcc3b796b107b7"},
+    {file = "instructor-0.6.2-py3-none-any.whl", hash = "sha256:e62a71198f4f02148da6baa9e4eeb5361d5f635e2b4611b5a568d381a663269d"},
+    {file = "instructor-0.6.2.tar.gz", hash = "sha256:c5572050a35452edeef8ec4ee7cf38f20ca74969cdd902db03691329de382e5b"},
 ]
 
 [package.dependencies]
@@ -2852,6 +2852,7 @@ docstring-parser = ">=0.15,<0.16"
 openai = ">=1.1.0,<2.0.0"
 pydantic = ">=2.0.2,<3.0.0"
 rich = ">=13.7.0,<14.0.0"
+tenacity = ">=8.2.3,<9.0.0"
 typer = ">=0.9.0,<0.10.0"
 
 [[package]]
@@ -9220,4 +9221,4 @@ text-stats = ["textacy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<4.0"
-content-hash = "e5fccb9c56ea1ac39d309d248da96123cb9ce2574dd0ac55b81870a829557727"
+content-hash = "caae5a8ade4512f98c9530c52e01a3d827ca775b84f83f4af21a6c0e6dfd30ae"

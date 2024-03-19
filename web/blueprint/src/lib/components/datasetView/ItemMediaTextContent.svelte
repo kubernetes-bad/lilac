@@ -615,7 +615,7 @@
               }
             }
           });
-        } else if (renderSpan.isMetadata) {
+        } else if (renderSpan.isMetadata || renderSpan.isLeafSpan) {
           spanDecorations.push({
             range,
             options: {

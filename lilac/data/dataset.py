@@ -349,6 +349,17 @@ class ConceptSearch(BaseModel):
   model_config = ConfigDict(json_schema_extra=change_const_to_enum('type', 'concept'))
 
 
+class ConceptTextSearch(BaseModel):
+  """A concept search query from a concept description on a column."""
+
+  path: Path
+  description: str
+  embedding: str
+  type: Literal['concept-text'] = 'concept-text'
+
+  model_config = ConfigDict(json_schema_extra=change_const_to_enum('type', 'concept-text'))
+
+
 class MetadataSearch(BaseModel):
   """A metadata search query on a column."""
 
