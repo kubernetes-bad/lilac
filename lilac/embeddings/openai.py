@@ -13,11 +13,13 @@ from ..splitters.spacy_splitter import clustering_spacy_chunker
 from ..tasks import TaskExecutionType
 from .embedding import chunked_compute_embedding, identity_chunker
 
-API_NUM_PARALLEL_REQUESTS = 10
-API_OPENAI_BATCH_SIZE = 128
-API_EMBEDDING_MODEL = 'text-embedding-ada-002'
-AZURE_NUM_PARALLEL_REQUESTS = 1
-AZURE_OPENAI_BATCH_SIZE = 16
+
+API_NUM_PARALLEL_REQUESTS = env('OPENAI_API_NUM_PARALLEL_REQUESTS', 10)
+API_OPENAI_BATCH_SIZE = env('OPENAI_API_OPENAI_BATCH_SIZE', 128)
+API_EMBEDDING_MODEL = env('OPENAI_API_EMBEDDING_MODEL', 'text-embedding-ada-002')
+AZURE_NUM_PARALLEL_REQUESTS = env('OPENAI_AZURE_NUM_PARALLEL_REQUESTS', 1)
+AZURE_OPENAI_BATCH_SIZE = env('OPENAI_AZURE_OPENAI_BATCH_SIZE', 16)
+AZURE_EMBEDDING_MODEL = env('AZURE_OPENAI_EMBEDDING_MODEL')
 
 
 class OpenAIEmbedding(TextEmbeddingSignal):
@@ -89,7 +91,7 @@ class OpenAIEmbedding(TextEmbeddingSignal):
 
       response = self._client.embeddings.create(
         input=texts,
-        model=API_EMBEDDING_MODEL if not self._azure else env('AZURE_OPENAI_EMBEDDING_MODEL'),
+        model=API_EMBEDDING_MODEL if not self._azure else AZURE_EMBEDDING_MODEL,
       )
       return [np.array(embedding.embedding, dtype=np.float32) for embedding in response.data]
 
