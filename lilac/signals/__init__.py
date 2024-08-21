@@ -16,6 +16,7 @@ from .ner import SpacyNER
 from .pii import PIISignal
 from .semantic_similarity import SemanticSimilaritySignal
 from .text_statistics import TextStatisticsSignal
+from .binary_classification import BinaryClassification
 
 register_default_signals()
 
@@ -33,4 +34,5 @@ __all__ = [
   'SpacyNER',
   'PIISignal',
   'ConceptSignal',
+  'BinaryClassification',
 ]

@@ -16,6 +16,7 @@ from .near_dup import NearDuplicateSignal
 from .ner import SpacyNER
 from .pii import PIISignal
 from .text_statistics import TextStatisticsSignal
+from .binary_classification import BinaryClassification
 
 
 def register_default_signals() -> None:
@@ -31,6 +32,7 @@ def register_default_signals() -> None:
   register_signal(NearDuplicateSignal, exists_ok=True)
   register_signal(LangDetectionSignal, exists_ok=True)
   register_signal(MarkdownCodeBlockSignal, exists_ok=True)
+  register_signal(BinaryClassification, exists_ok=True)
 
   # Embeddings.
   register_signal(Cohere, exists_ok=True)
